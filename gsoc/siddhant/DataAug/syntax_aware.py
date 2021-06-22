@@ -4,6 +4,9 @@ Code for implementing Syntax Aware Data Augmentation on DBNQA
 
 """
 
+from networkx.classes import ordered
+from numpy.core.records import array
+from numpy.lib.function_base import copy
 import spacy
 import networkx as nx
 import math
@@ -41,11 +44,13 @@ def parsingTree(pair, alpha):
     for node in list(graph.nodes):
         #target = node
         try:
-            d = nx.shortest_path_length(graph, source=root_word, target=node) 
+            d = nx.shortest_path_length(graph, source=root_word, target=node)
+            targetWords.append(node)
+            wordDepths.append(d)
         except nx.exception.NetworkXNoPath:
             pass
-        targetWords.append(node)
-        wordDepths.append(d)
+#        targetWords.append(node)
+#        wordDepths.append(d)
 
     prob = []
 
@@ -69,14 +74,33 @@ def parsingTree(pair, alpha):
     
     probFinal = sigmoid * alpha * float(len(sigm))
 
+
+
+
     return probFinal
+
+
+def top2(probs):
+    arr = probs
+    index1 = np.argmax(arr)
+    arr[index1] = 0.0
+    index2 = np.argmax(arr)
+    return index1, index2
+
+
+def dropout(en_sen, inde1, inde2):
+    en_words = en_sen.split()
+    en_words[inde1] = ""
+    en_words[inde2] = ""
+    final = " ".join(en_words)
+
+    return final
 
 
 def replacement():
     pass
 
-def dropout():
-    pass
+
 
 def blanking():
     pass
